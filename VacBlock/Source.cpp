@@ -46,7 +46,6 @@ HMODULE WINAPI HookedLoadLibrary(LPCWSTR lpLibFileName, HANDLE  hFile, DWORD dwF
 	if (runfunc) {
 
 #ifndef LOG_ONLY
-		PlaySound("C:\\Users\\Riza\\Music\\hayai-bang-dream.wav", NULL, SND_ASYNC);
 		WriteLog("[*] Blocking VAC loader thread ...\n");
 		SuspendThread(GetCurrentThread());
 #else
