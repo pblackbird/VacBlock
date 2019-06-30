@@ -39,6 +39,7 @@ HMODULE WINAPI HookedLoadLibrary(LPCWSTR lpLibFileName, HANDLE  hFile, DWORD dwF
 
 	HMODULE loadedModule = originalLoadLibrary(lpLibFileName, hFile, dwFlags);
 
+	// If loaded module has export entry named "_runfunc@20" which is VAC's rpc communication function
 	PVOID runfunc = GetProcAddress(loadedModule, "_runfunc@20");
 
 	if (runfunc) {
@@ -58,9 +59,15 @@ HMODULE WINAPI HookedLoadLibrary(LPCWSTR lpLibFileName, HANDLE  hFile, DWORD dwF
 
 VOID PatchVACLoader() {
 
+	/*
+		Forcing SteamService to use LoadLibraryExW instead of manual mapping for VAC injection
+	*/
+
 	Module steamService;
 	GetModule("SteamService.dll", &steamService);
 
+
+	// Finding VAC loader's code signature
 	DWORD foundAddress = SearchForSignature(
 		steamService.base,
 		(unsigned char*)VAC_LOADLIBRARY_FORCE_SIGNATURE, 
@@ -70,14 +77,22 @@ VOID PatchVACLoader() {
 
 	DWORD oldProtection = 0;
 
+	// Making this memory page writable to patch opcode to JMP from JE
 	VirtualProtect((LPVOID)foundAddress, 1, PAGE_EXECUTE_READWRITE, &oldProtection);
 	*(BYTE*)foundAddress = 0xEB;
+
+	// Making it executable and readable back
 	VirtualProtect((LPVOID)foundAddress, 1, oldProtection, &oldProtection);
 
 
 }
 
 VOID HookLoadLibrary() {
+
+	/*
+		Making hook for the LoadLibraryExW function which SteamService uses to load VAC's dll
+	*/
+
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
