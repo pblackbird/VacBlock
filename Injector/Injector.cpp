@@ -116,7 +116,7 @@ int main() {
 
 	WORD Attributes = 0;
 
-	printf("Steam VACBlocker v0.1 by Kirie\n");
+	printf("Steam AntiVAC v0.2 by Kirie\n");
 
 	Sleep(1000);
 
