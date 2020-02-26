@@ -9,7 +9,7 @@
 #pragma comment(lib, "Winmm.lib")
 
 #define VAC_LOADLIBRARY_FORCE_SIGNATURE "\x74\x47\x6A\x01\x6A"
-#define LOGFILE_A "C:\\Users\\Riza\\Desktop\\vaclog.txt"
+#define LOGFILE_A "C:\\Temp\\vaclog.txt"
 
 //#define LOG_ONLY
 
@@ -72,7 +72,7 @@ VOID PatchVACLoader() {
 	DWORD foundAddress = SearchForSignature(
 		steamService.base,
 		(unsigned char*)VAC_LOADLIBRARY_FORCE_SIGNATURE, 
-		5,
+		sizeof(VAC_LOADLIBRARY_FORCE_SIGNATURE)-1,
 		steamService.size
 	);
 
@@ -118,9 +118,11 @@ BOOL WINAPI DllMain(
 	}
 
 	self = hinstDLL;
+	
+	const auto _msg = "[*] Starting VacBlocker v0.1\n";
 
 	log = fopen(LOGFILE_A, "w");
-	fwrite("[*] Starting VacBlocker v0.1\n", strlen("[*] Starting VacBlocker v0.1\n") , 1, log);
+	fwrite(_msg, strlen(_msg) , 1, log);
 	fclose(log);
 
 	WriteLog("[*] Hooking LoadLibraryW ...\n");
